@@ -1,32 +1,63 @@
 const functions = require("firebase-functions");
 const firebase = require('firebase-admin');
-const cors = require('cors')({ origin: false });
+const cors = require('cors')({ origin: true });
+const app = require("express")();
+firebase.initializeApp();
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
+//const db = firebase.firestore().collection("todos");
 
-exports.projetoFinalAPI = functions.https.onRequest((req, res) => {
-    cors(req, res, () => {
+app.get("/atari", function (request, response) {
+    firebase.database().ref("listaDeImagem").on('value', function (snapshot) {
+        let res = snapshotToArray(snapshot)
+        response.json(res);
+    })
 
-        firebase.database().ref("listaDeImagem").on('value', function (snapshot) {
-            let res = snapshotToArray(snapshot)
-            console.log(res);
+    function snapshotToArray(snapshot) {
+        let retunrArr = []
+
+        snapshot.forEach(function (childSnapshot) {
+            let item = childSnapshot.val();
+            item.key = childSnapshot.key
+
+            retunrArr.push(item)
         })
 
-        function snapshotToArray(snapshot) {
-            let retunrArr = []
+        let numberRandom = Math.floor(Math.random() * 10 + 1)
 
-            snapshot.forEach(function (childSnapshot) {
-                let item = childSnapshot.val();
-                item.key = childSnapshot.key
+        return retunrArr[numberRandom]
+    }
+})
 
-                retunrArr.push(item)
-            })
 
-            let numberRandom = Math.floor(Math.random() * 10 + 1)
+// app.post("/atari", function (request, response) {
+//     db.add({ description: request.body.description })
+//         .then(function () {
+//             response.json({ general: "Works" });
+//         })
+// })
 
-            return retunrArr[numberRandom]
-        }
-        res.send("Ok Status 200");
-    });
-});
+exports.API = functions.https.onRequest(app)
+
+
+
+
+
+// firebase.database().ref("listaDeImagem").on('value', function (snapshot) {
+//     let res = snapshotToArray(snapshot)
+//     console.log(res);
+// })
+
+// function snapshotToArray(snapshot) {
+//     let retunrArr = []
+
+//     snapshot.forEach(function (childSnapshot) {
+//         let item = childSnapshot.val();
+//         item.key = childSnapshot.key
+
+//         retunrArr.push(item)
+//     })
+
+//     let numberRandom = Math.floor(Math.random() * 10 + 1)
+
+//     return retunrArr[numberRandom]
+// }
